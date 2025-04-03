@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,4 +23,11 @@ public class CategoryService {
         List<Category> list = categoryRepository.findAll();
         return list.stream().map(CategoryDTO::new).collect(Collectors.toList());
     }
+
+    @Transactional(readOnly = true)
+     public CategoryDTO findById(Long id) {
+        Optional<Category> dbCategory = categoryRepository.findById(id);
+        Category category = dbCategory.get();
+        return new CategoryDTO(category);
+     }
 }
