@@ -42,6 +42,22 @@ public class Product implements Serializable {
         this.imageUrl = imageUrl;
     }
 
+    public Product(Product product) {
+        this.id = product.id;
+        this.name = product.name;
+        this.description = product.description;
+        this.price = product.price;
+        this.imageUrl = product.imageUrl;
+        this.createdAt = product.createdAt;
+        this.updatedAt = product.updatedAt;
+        this.categories = new HashSet<>(product.categories);
+    }
+
+    private Product(Product product, Set<Category> categories) {
+        this(product);
+        this.categories = new HashSet<>(categories);
+    }
+
     public long getId() {
         return id;
     }
