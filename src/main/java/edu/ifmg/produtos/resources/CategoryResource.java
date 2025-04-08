@@ -22,9 +22,16 @@ public class CategoryResource {
     }
 
     @GetMapping
-    public ResponseEntity<List<CategoryDTO>> findAll() {
-        List<CategoryDTO> list = categoryService.findAll();
-        return ResponseEntity.ok(list);
+    public ResponseEntity<Page<CategoryDTO>> findAll(
+        @RequestParam(value = "page", defaultValue = "0") Integer page,
+        @RequestParam(value = "size", defaultValue = "10") Integer size,
+        @RequestParam(value = "direction", defaultValue = "ASC") String direction,
+        @RequestParam(value = "orderBy", defaultValue = "id") String orderBy
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.Direction.valueOf(direction), orderBy);
+
+        Page<CategoryDTO> categories = categoryService.findAll(pageable);
+        return ResponseEntity.ok().body(categories);
     }
 
     @GetMapping("/{id}")
@@ -37,13 +44,13 @@ public class CategoryResource {
     public ResponseEntity<CategoryDTO> insert(@RequestBody CategoryDTO dto) {
         dto = categoryService.insert(dto);
         URI uri = ServletUriComponentsBuilder
-            .fromCurrentRequest().path("/{id}")
-            .buildAndExpand(dto.getId())
-            .toUri();
+                .fromCurrentRequest().path("/{id}")
+                .buildAndExpand(dto.getId())
+                .toUri();
         return ResponseEntity.created(uri).body(dto);
     }
 
-    @PutMapping(value = {"/{id}"})
+    @PutMapping("/{id}")
     public ResponseEntity<CategoryDTO> update(@PathVariable Long id, @RequestBody CategoryDTO dto) {
         dto = categoryService.update(id, dto);
         return ResponseEntity.ok().body(dto);

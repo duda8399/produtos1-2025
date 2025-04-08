@@ -4,12 +4,11 @@ import edu.ifmg.produtos.dto.CategoryDTO;
 import edu.ifmg.produtos.entities.Category;
 import edu.ifmg.produtos.repository.CategoryRepository;
 import edu.ifmg.produtos.services.exceptions.ResourceNotFound;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class CategoryService {
@@ -21,11 +20,9 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public List<CategoryDTO> findAll() {
-        return categoryRepository.findAll()
-                .stream()
-                .map(CategoryDTO::new)
-                .collect(Collectors.toList());
+    public Page<CategoryDTO> findAll(Pageable pageable) {
+        Page<Category> list = categoryRepository.findAll(pageable);
+        return list.map(CategoryDTO::new);
     }
 
     @Transactional(readOnly = true)
@@ -50,7 +47,7 @@ public class CategoryService {
             entity.setName(dto.getName());
             entity = categoryRepository.save(entity);
             return new CategoryDTO(entity);
-        } catch(EntityNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             throw new ResourceNotFound("Category not found: " + id);
         }
     }
