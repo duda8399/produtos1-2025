@@ -51,4 +51,12 @@ public class CategoryService {
             throw new ResourceNotFound("Category not found: " + id);
         }
     }
+
+    @Transactional
+    public void delete(Long id) {
+        if (!categoryRepository.existsById(id)) {
+            throw new ResourceNotFound("Category not found with ID: " + id);
+        }
+        categoryRepository.deleteById(id);
+    }
 }
