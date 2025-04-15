@@ -3,11 +3,14 @@ package edu.ifmg.produtos.services;
 import edu.ifmg.produtos.dto.CategoryDTO;
 import edu.ifmg.produtos.entities.Category;
 import edu.ifmg.produtos.repository.CategoryRepository;
+import edu.ifmg.produtos.services.exceptions.DatabaseException;
 import edu.ifmg.produtos.services.exceptions.ResourceNotFound;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -52,11 +55,15 @@ public class CategoryService {
         }
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.SUPPORTS)
     public void delete(Long id) {
         if (!categoryRepository.existsById(id)) {
             throw new ResourceNotFound("Category not found with ID: " + id);
         }
-        categoryRepository.deleteById(id);
+        try {
+            categoryRepository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new DatabaseException("Integrity violation");
+        }
     }
 }
