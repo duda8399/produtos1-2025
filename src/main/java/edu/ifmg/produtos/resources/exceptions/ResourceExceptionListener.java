@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import jakarta.servlet.http.HttpServletRequest;
-import lucas.ifmg.produtos.services.exceptions.ResourceNotFound;
+import edu.ifmg.produtos.services.exceptions.ResourceNotFound;
 
 @ControllerAdvice
 public class ResourceExceptionListener {

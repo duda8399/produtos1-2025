@@ -1,5 +1,7 @@
 package edu.ifmg.produtos.resources.exceptions;
 
+import java.time.Instant;
+
 public class StandardError {
     private Instant timestamp;
     private Integer status;
@@ -10,7 +12,7 @@ public class StandardError {
     public StandardError() {
     }
 
-    public StandardError(Long timestamp, Integer status, String error, String message, String path) {
+    public StandardError(Instant timestamp, Integer status, String error, String message, String path) {
         this.timestamp = timestamp;
         this.status = status;
         this.error = error;
