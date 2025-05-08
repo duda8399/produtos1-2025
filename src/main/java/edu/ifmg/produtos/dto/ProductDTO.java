@@ -2,21 +2,30 @@ package edu.ifmg.produtos.dto;
 
 import java.io.Serializable;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Objects;
+import java.util.HashSet;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import edu.ifmg.produtos.entities.Product;
 import edu.ifmg.produtos.entities.Category;
+import org.springframework.hateoas.RepresentationModel;
 
-public class ProductDTO implements Serializable {
+public class ProductDTO extends RepresentationModel<ProductDTO> {
+    @Schema(description = "Database generated ID product")
     private Long id;
+    @Schema(description = "Product name")
     private String name;
+    @Schema(description = "A detail description of the product")
     private String description;
+    @Schema(description = "Product price")
     private Double price;
+    @Schema(description = "Product image URL")
     private String imageUrl;
-
-    private Set<CategoryDTO> categories;
+    @Schema(description = "Product categories (one or more)")
+    private Set<CategoryDTO> categories = new HashSet<>();
 
     public ProductDTO() {
+
     }
 
     public ProductDTO(Product entity) {
@@ -25,10 +34,12 @@ public class ProductDTO implements Serializable {
         this.description = entity.getDescription();
         this.price = entity.getPrice();
         this.imageUrl = entity.getImageUrl();
-        this.categories = entity.getCategories()
-                .stream()
-                .map(CategoryDTO::new)
-                .collect(Collectors.toSet());
+        entity.getCategories().forEach(c -> categories.add(new CategoryDTO(c)));
+    }
+
+    public ProductDTO(Product product, Set<Category> categories) {
+        this(product);
+        categories.forEach(c -> this.categories.add(new CategoryDTO(c)));
     }
 
     public Long getId() {
@@ -77,5 +88,28 @@ public class ProductDTO implements Serializable {
 
     public void setCategories(Set<CategoryDTO> categories) {
         this.categories = categories;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof ProductDTO product)) return false;
+        return Objects.equals(id, product.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", price=" + price +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", categories=" + categories +
+                '}';
     }
 }

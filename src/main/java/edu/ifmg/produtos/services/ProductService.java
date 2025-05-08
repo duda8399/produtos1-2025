@@ -1,6 +1,5 @@
 package edu.ifmg.produtos.services;
 
-import edu.ifmg.produtos.dto.CategoryDTO;
 import edu.ifmg.produtos.dto.ProductDTO;
 import edu.ifmg.produtos.entities.Category;
 import edu.ifmg.produtos.entities.Product;
@@ -16,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -77,12 +77,9 @@ public class ProductService {
         entity.setDescription(dto.getDescription());
         entity.setPrice(dto.getPrice());
         entity.setImageUrl(dto.getImageUrl());
-
-        entity.getCategories().clear();
-        for (CategoryDTO catDto : dto.getCategories()) {
-            Category category = categoryRepository.findById(catDto.getId())
-                    .orElseThrow(() -> new ResourceNotFound("Category not found: " + catDto.getId()));
-            entity.getCategories().add(category);
-        }
+        entity.setCategories(dto.getCategories()
+                .stream()
+                .map(categoryDTO -> new Category(categoryDTO.getId(), categoryDTO.getName()))
+                .collect(Collectors.toSet()));
     }
 }
