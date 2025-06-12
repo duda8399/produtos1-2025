@@ -1,17 +1,15 @@
 package edu.ifmg.produtos.entities;
 
 import jakarta.persistence.*;
-import java.io.Serializable;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "tb_user")
-public class User implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -129,6 +127,11 @@ public class User implements Serializable {
     }
 
     @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (!(o instanceof User user)) return false;
         return Objects.equals(id, user.id);
@@ -150,5 +153,14 @@ public class User implements Serializable {
                 ", updatedAt=" + updatedAt +
                 ", roles=" + roles +
                 '}';
+    }
+
+    public void addRole(Role role) {
+        roles.add(role);
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
     }
 }

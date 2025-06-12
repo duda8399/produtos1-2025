@@ -1,38 +1,91 @@
 package edu.ifmg.produtos.dto;
-
 import edu.ifmg.produtos.entities.User;
 
-public class UserDTO {
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
+import java.util.HashSet;
+import java.util.Set;
+
+public class UserDTO {
     private Long id;
-    private String name;
     @NotBlank(message = "Campo obrigatório")
     private String firstName;
     private String lastName;
 
-    @Email(message = "Favor informar um email válido")
+    // Checa se o email está correto
+    @Email(message = "Favor informar um e-mail válido")
     private String email;
 
-    private Set<Role> roles = new HashSet<>();
+    private Set<RoleDTO> roles = new HashSet<>();
 
-    public UserDTO() { }
+    public UserDTO() {
+    }
 
-    public User(long id, String firstName, String lastName, String email) {
+    public UserDTO(Long id, String firstName, String lastName, String email) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
     }
+    public UserDTO(User user) {
+        id = user.getId();
+        firstName = user.getFirstName();
+        lastName = user.getLastName();
+        email = user.getEmail();
+        user.getRoles().forEach(role -> {
+            roles.add(new RoleDTO(role));
+        });
+    }
 
-    public User(User user) {
-        this.id = user.getId();
-        this.firstName = user.getFirstName();
-        this.lastName = user.getLastName();
-        this.email = user.getEmail();
+    public Long getId() {
+        return id;
+    }
 
-        user.getRoles()
-            .forEach(role -> {
-                roles.add(new RoleDTO(role))
-            });
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Set<RoleDTO> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<RoleDTO> roles) {
+        this.roles = roles;
+    }
+
+    @Override
+    public String toString() {
+        return "UserDTO{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", roles=" + roles +
+                '}';
     }
 }

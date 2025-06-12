@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.data.domain.Page;
@@ -51,31 +52,27 @@ public class CategoryResource {
     }
 
     @PostMapping
-    @Operation(summary = "Inserir nova categoria")
-    public ResponseEntity<CategoryDTO> insert(@RequestBody CategoryDTO dto) {
-        dto = categoryService.insert(dto);
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_OPERATOR')")
+    public ResponseEntity<CategoryDTO> insert(@RequestBody CategoryDTO categoryDTO) {
+        CategoryDTO newCategory = categoryService.insert(categoryDTO);
         URI uri = ServletUriComponentsBuilder
-                .fromCurrentRequest().path("/{id}")
-                .buildAndExpand(dto.getId())
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(newCategory.getId())
                 .toUri();
-        return ResponseEntity.created(uri).body(dto);
+        return ResponseEntity.created(uri).body(newCategory);
     }
 
-    @PutMapping("/{id}")
-    @Operation(summary = "Atualizar categoria existente")
-    public ResponseEntity<CategoryDTO> update(
-            @Parameter(description = "ID da categoria") @PathVariable Long id,
-            @RequestBody CategoryDTO dto
-    ) {
-        dto = categoryService.update(id, dto);
-        return ResponseEntity.ok().body(dto);
+    @PutMapping(value = "/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_OPERATOR')")
+    public ResponseEntity<CategoryDTO> update(@PathVariable Long id, @RequestBody CategoryDTO categoryDTO) {
+        CategoryDTO updatedCategory = categoryService.update(id, categoryDTO);
+        return ResponseEntity.ok().body(updatedCategory);
     }
 
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Excluir uma categoria")
-    public ResponseEntity<Void> delete(
-            @Parameter(description = "ID da categoria") @PathVariable Long id
-    ) {
+    @DeleteMapping(value = "/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_OPERATOR')")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         categoryService.delete(id);
         return ResponseEntity.noContent().build();
     }

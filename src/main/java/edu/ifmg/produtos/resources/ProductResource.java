@@ -6,8 +6,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.data.domain.Page;
@@ -65,36 +67,30 @@ public class ProductResource {
                             content = @Content(mediaType = "application/json",
                                     schema = @Schema(implementation = ProductDTO.class)))
             })
-    @PostMapping
-    public ResponseEntity<ProductDTO> insert(@RequestBody ProductDTO dto) {
-        dto = productService.insert(dto);
+    @PostMapping(consumes = "application/json", produces = "application/json")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_OPERATOR')")
+    public ResponseEntity<ProductDTO> insert(@Valid @RequestBody ProductDTO productDTO) {
+        ProductDTO product = productService.insert(productDTO);
         URI uri = ServletUriComponentsBuilder
-                .fromCurrentRequest().path("/{id}")
-                .buildAndExpand(dto.getId())
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(product.getId())
                 .toUri();
-        return ResponseEntity.created(uri).body(dto);
+        this.addHateoasLinks(product);
+
+        return ResponseEntity.created(uri).body(product);
     }
 
-    @Operation(summary = "Atualizar produto existente",
-            description = "Atualiza os dados de um produto existente.",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Produto atualizado",
-                            content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = ProductDTO.class))),
-                    @ApiResponse(responseCode = "404", description = "Produto não encontrado")
-            })
-    @PutMapping("/{id}")
-    public ResponseEntity<ProductDTO> update(@PathVariable Long id, @RequestBody ProductDTO dto) {
-        dto = productService.update(id, dto);
-        return ResponseEntity.ok().body(dto);
+    @PutMapping(value = "/{id}", consumes = "application/json", produces = "application/json")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_OPERATOR')")
+    public ResponseEntity<ProductDTO> update(@PathVariable Long id, @Valid @RequestBody ProductDTO productDTO) {
+        ProductDTO product = productService.update(id, productDTO);
+        this.addHateoasLinks(product);
+        return ResponseEntity.ok().body(product);
     }
 
-    @Operation(summary = "Excluir produto",
-            description = "Remove um produto com base no ID fornecido.",
-            responses = {
-                    @ApiResponse(responseCode = "204", description = "Produto excluído")
-            })
-    @DeleteMapping("/{id}")
+    @DeleteMapping(value = "/{id}", produces = "application/json")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_OPERATOR')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         productService.delete(id);
         return ResponseEntity.noContent().build();
