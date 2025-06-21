@@ -1,10 +1,10 @@
 package edu.ifmg.produtos.repositories;
 
+import edu.ifmg.produtos.entities.Product;
+import edu.ifmg.produtos.utils.Factory;
+
 import java.util.Optional;
 
-import edu.ifmg.produtos.entities.Product;
-import edu.ifmg.produtos.repository.ProductRepository;
-import edu.ifmg.produtos.utils.Factory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -5,6 +5,7 @@ import edu.ifmg.produtos.entities.Category;
 import edu.ifmg.produtos.entities.Product;
 
 public class Factory {
+
     public static Product createProduct(){
         Product p = new Product();
         p.setName("Produto Teste");

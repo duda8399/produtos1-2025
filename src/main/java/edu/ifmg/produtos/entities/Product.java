@@ -1,14 +1,14 @@
 package edu.ifmg.produtos.entities;
 
 import jakarta.persistence.*;
+
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Objects;
 
 @Entity
-@Table(name = "tb_product")
+@Table(name = "products")
 public class Product implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -16,22 +16,21 @@ public class Product implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String name;
-    
     @Column(columnDefinition = "TEXT")
     private String description;
     private double price;
     private String imageUrl;
-
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private Instant createdAt;
-
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private Instant updatedAt;
 
     @ManyToMany
-    @JoinTable(name = "tb_product_category",
-        joinColumns = @JoinColumn(name = "product_id"),
-        inverseJoinColumns = @JoinColumn(name = "category_id"))
+    @JoinTable(
+            name = "categories_to_products",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
     private Set<Category> categories = new HashSet<>();
 
     public Product() {}
@@ -44,20 +43,15 @@ public class Product implements Serializable {
         this.imageUrl = imageUrl;
     }
 
-    public Product(Product product) {
-        this.id = product.id;
-        this.name = product.name;
-        this.description = product.description;
-        this.price = product.price;
-        this.imageUrl = product.imageUrl;
-        this.createdAt = product.createdAt;
-        this.updatedAt = product.updatedAt;
-        this.categories = new HashSet<>(product.categories);
-    }
-
-    private Product(Product product, Set<Category> categories) {
-        this(product);
-        this.categories = new HashSet<>(categories);
+    public Product(Product product, Set<Category> categories) {
+        this.id = product.getId();
+        this.name = product.getName();
+        this.description = product.getDescription();
+        this.price = product.getPrice();
+        this.imageUrl = product.getImageUrl();
+        this.createdAt = product.getCreatedAt();
+        this.updatedAt = product.getUpdatedAt();
+        this.categories = categories;
     }
 
     public long getId() {
@@ -119,35 +113,11 @@ public class Product implements Serializable {
     @PrePersist
     public void prePersist() {
         createdAt = Instant.now();
+        updatedAt = Instant.now();
     }
 
     @PreUpdate
     public void preUpdate() {
         updatedAt = Instant.now();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof Product product)) return false;
-        return Objects.equals(id, product.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
-    }
-
-    @Override
-    public String toString() {
-        return "Product{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", price=" + price +
-                ", imageUrl='" + imageUrl + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", categories=" + categories +
-                '}';
     }
 }

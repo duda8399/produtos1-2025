@@ -6,8 +6,8 @@ import edu.ifmg.produtos.dto.UserInsertDTO;
 import edu.ifmg.produtos.entities.Role;
 import edu.ifmg.produtos.entities.User;
 import edu.ifmg.produtos.projections.UserDetailsProjection;
-import edu.ifmg.produtos.repository.RoleRepository;
-import edu.ifmg.produtos.repository.UserRepository;
+import edu.ifmg.produtos.repositories.RoleRepository;
+import edu.ifmg.produtos.repositories.UserRepository;
 import edu.ifmg.produtos.services.exceptions.DatabaseException;
 import edu.ifmg.produtos.services.exceptions.ResourceNotFound;
 
@@ -107,7 +107,18 @@ public class UserService implements UserDetailsService {
     }
 
     public UserDTO signup(UserInsertDTO dto) {
-        return dto;
+        User entity = new User();
+
+        copyDtoToEntity(dto, entity);
+        entity.setPassword(passwordEncoder.encode(dto.getPassword()));
+
+        Role role = roleRepository.findByAuthority("ROLE_OPERATOR");
+        entity.getRoles().clear();
+        entity.getRoles().add(role);
+
+        User novo = repository.save(entity);
+
+        return new UserDTO(novo);
     }
 
     private void copyDtoToEntity(UserDTO dto, User entity) {

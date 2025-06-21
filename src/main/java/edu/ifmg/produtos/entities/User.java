@@ -4,67 +4,57 @@ import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.Instant;
 import java.util.*;
 
 @Entity
-@Table(name = "tb_user")
+@Table(name = "users")
 public class User implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
+    private Long id;
     private String firstName;
     private String lastName;
 
     @Column(unique = true)
     private String email;
-
     private String password;
 
-    @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
-    private Instant createdAt;
-
-    @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
-    private Instant updatedAt;
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "tb_user_role",
+    @ManyToMany//(fetch = FetchType.EAGER)
+    @JoinTable(name = "users_to_roles",
             joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
     private Set<Role> roles = new HashSet<>();
 
-    public User() {}
+    public User() {
+    }
 
-    public User(long id, String firstName, String lastName, String email, String password) {
+    public User(Long id, String firstName, String lastName, String email, String password) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
     }
-
-    public User(User user) {
-        this.id = user.id;
-        this.firstName = user.firstName;
-        this.lastName = user.lastName;
-        this.email = user.email;
-        this.password = user.password;
-        this.createdAt = user.createdAt;
-        this.updatedAt = user.updatedAt;
-        this.roles = new HashSet<>(user.roles);
+    public User(User entity) {
+        this.id = entity.getId();
+        this.firstName = entity.getFirstName();
+        this.lastName = entity.getLastName();
+        this.email = entity.getEmail();
+        this.password = entity.getPassword();
     }
-
-    private User(User user, Set<Role> roles) {
+    public User (User user, Set<Role> roles) {
         this(user);
-        this.roles = new HashSet<>(roles);
+        this.roles = roles;
     }
 
-    public long getId() {
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -92,20 +82,17 @@ public class User implements UserDetails {
         this.email = email;
     }
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
     public String getPassword() {
         return password;
     }
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
     }
 
     public Set<Role> getRoles() {
@@ -116,19 +103,12 @@ public class User implements UserDetails {
         this.roles = roles;
     }
 
-    @PrePersist
-    public void prePersist() {
-        createdAt = Instant.now();
+    public void addRole(Role role) {
+        roles.add(role);
     }
 
-    @PreUpdate
-    public void preUpdate() {
-        updatedAt = Instant.now();
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+    public boolean hasRole(String roleName) {
+        return !roles.stream().filter(r -> r.getAuthority().equals(roleName)).toList().isEmpty();
     }
 
     @Override
@@ -140,23 +120,6 @@ public class User implements UserDetails {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", email='" + email + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", roles=" + roles +
-                '}';
-    }
-
-    public void addRole(Role role) {
-        roles.add(role);
     }
 
     @Override

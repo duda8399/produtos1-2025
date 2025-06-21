@@ -1,4 +1,4 @@
-package edu.ifmg.produtos.repository;
+package edu.ifmg.produtos.repositories;
 
 import edu.ifmg.produtos.entities.User;
 import edu.ifmg.produtos.projections.UserDetailsProjection;
@@ -30,4 +30,3 @@ public interface UserRepository extends JpaRepository<User, Long> {
     )
     List<UserDetailsProjection> searchUserAndRoleByEmail(String email);
 }
-

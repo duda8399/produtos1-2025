@@ -1,31 +1,47 @@
 package edu.ifmg.produtos.dto;
 
-import java.io.Serializable;
-import java.util.Set;
-import java.util.Objects;
-import java.util.HashSet;
-import io.swagger.v3.oas.annotations.media.Schema;
-
-import edu.ifmg.produtos.entities.Product;
 import edu.ifmg.produtos.entities.Category;
+import edu.ifmg.produtos.entities.Product;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import org.springframework.hateoas.RepresentationModel;
+
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 public class ProductDTO extends RepresentationModel<ProductDTO> {
     @Schema(description = "Database generated ID product")
-    private Long id;
-    @Schema(description = "Product name")
+    private long id;
+
+    @Schema(description = "Product Name")
+    @Size(min = 3, max = 255, message = "Deve ter entre 3 e 255 caracteres.")
     private String name;
-    @Schema(description = "A detail description of the product")
+
+    @Schema(description = "A detailed description of the product")
     private String description;
-    @Schema(description = "Product price")
-    private Double price;
-    @Schema(description = "Product image URL")
+
+    @Schema(description = "Product Price")
+    @Positive(message = "Preço deve ter um valor positivo.")
+    private double price;
+
+    @Schema(description = "A image url represents this product.")
     private String imageUrl;
+
     @Schema(description = "Product categories (one or more)")
+    @NotEmpty(message = "Produto deve ter pelo menos uma categoria.")
     private Set<CategoryDTO> categories = new HashSet<>();
 
     public ProductDTO() {
 
+    }
+    public ProductDTO(String name, String description, double price, String imageUrl) {
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.imageUrl = imageUrl;
     }
 
     public ProductDTO(Product entity) {
@@ -34,19 +50,20 @@ public class ProductDTO extends RepresentationModel<ProductDTO> {
         this.description = entity.getDescription();
         this.price = entity.getPrice();
         this.imageUrl = entity.getImageUrl();
-        entity.getCategories().forEach(c -> categories.add(new CategoryDTO(c)));
+
+        entity.getCategories().forEach(c -> this.categories.add(new CategoryDTO(c)));
     }
 
     public ProductDTO(Product product, Set<Category> categories) {
         this(product);
-        categories.forEach(c -> this.categories.add(new CategoryDTO(c)));
+        categories.forEach(c-> this.categories.add(new CategoryDTO(c)));
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -66,11 +83,11 @@ public class ProductDTO extends RepresentationModel<ProductDTO> {
         this.description = description;
     }
 
-    public Double getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 
@@ -93,7 +110,7 @@ public class ProductDTO extends RepresentationModel<ProductDTO> {
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof ProductDTO product)) return false;
-        return Objects.equals(id, product.id);
+        return id == product.id;
     }
 
     @Override
@@ -103,7 +120,7 @@ public class ProductDTO extends RepresentationModel<ProductDTO> {
 
     @Override
     public String toString() {
-        return "Product{" +
+        return "ProductDTO{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +

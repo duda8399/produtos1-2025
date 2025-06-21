@@ -1,21 +1,27 @@
 package edu.ifmg.produtos.services;
 
 import edu.ifmg.produtos.dto.ProductDTO;
+import edu.ifmg.produtos.dto.ProductListDTO;
 import edu.ifmg.produtos.entities.Category;
 import edu.ifmg.produtos.entities.Product;
-import edu.ifmg.produtos.repository.CategoryRepository;
-import edu.ifmg.produtos.repository.ProductRepository;
-import edu.ifmg.produtos.services.exceptions.DatabaseException;
+import edu.ifmg.produtos.projections.ProductProjection;
+import edu.ifmg.produtos.repositories.ProductRepository;
 import edu.ifmg.produtos.services.exceptions.ResourceNotFound;
-import jakarta.persistence.EntityNotFoundException;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.stream.Collectors;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class ProductService {
@@ -23,61 +29,73 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
-    @Autowired
-    private CategoryRepository categoryRepository;
-
     @Transactional(readOnly = true)
     public Page<ProductDTO> findAll(Pageable pageable) {
-        Page<Product> list = productRepository.findAll(pageable);
-        return list.map(ProductDTO::new);
+        Page<Product> page = productRepository.findAll(pageable);
+        return page.map(ProductDTO::new);
+    }
+
+    public Page<ProductListDTO> findAllPaged(String name, String categoryId, Pageable pageable) {
+        List<Long> categoriesId = null;
+        if(!categoryId.equals("0")){
+            categoriesId = Arrays.stream(categoryId.split(","))
+                    .map(id -> Long.parseLong(id))
+                    .toList();
+        }
+
+        Page<ProductProjection> page = categoriesId != null
+                ? productRepository.searchProductsWithCategories(categoriesId, name, pageable)
+                : productRepository.searchProductsWithoutCategories(name, pageable);
+
+        List<ProductListDTO> dtos = page
+                .stream().map(p -> new ProductListDTO(p))
+                .toList();
+
+        return new PageImpl<>(dtos, pageable, page.getTotalElements());
     }
 
     @Transactional(readOnly = true)
     public ProductDTO findById(Long id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFound("Product not found"));
+        Optional<Product> dbProduct = productRepository.findById(id);
+        Product product = dbProduct.orElseThrow(() -> new ResourceNotFound("Product not found"));
         return new ProductDTO(product);
     }
 
     @Transactional
-    public ProductDTO insert(ProductDTO dto) {
-        Product entity = new Product();
-        copyDtoToEntity(dto, entity);
-        entity = productRepository.save(entity);
-        return new ProductDTO(entity);
+    public ProductDTO insert(ProductDTO productDTO) {
+        Product product = new Product();
+        copyToEntity(product, productDTO);
+        product = productRepository.save(product);
+        return new ProductDTO(product);
     }
 
     @Transactional
-    public ProductDTO update(Long id, ProductDTO dto) {
+    public ProductDTO update(Long id, ProductDTO productDTO) {
         try {
-            Product entity = productRepository.getReferenceById(id);
-            copyDtoToEntity(dto, entity);
-            entity = productRepository.save(entity);
-            return new ProductDTO(entity);
+            Product product = productRepository.getReferenceById(id);
+            copyToEntity(product, productDTO);
+            product = productRepository.save(product);
+            return new ProductDTO(product);
         } catch (EntityNotFoundException e) {
-            throw new ResourceNotFound("Product not found with ID: " + id);
+            throw new ResourceNotFound("Product not found");
         }
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
+    @Transactional
     public void delete(Long id) {
-        if (!productRepository.existsById(id)) {
-            throw new ResourceNotFound("Product not found with ID: " + id);
-        }
-
         try {
             productRepository.deleteById(id);
-        } catch (DataIntegrityViolationException e) {
-            throw new DatabaseException("Integrity violation");
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResourceNotFound("Product not found");
         }
     }
 
-    private void copyDtoToEntity(ProductDTO dto, Product entity) {
-        entity.setName(dto.getName());
-        entity.setDescription(dto.getDescription());
-        entity.setPrice(dto.getPrice());
-        entity.setImageUrl(dto.getImageUrl());
-        entity.setCategories(dto.getCategories()
+    private void copyToEntity(Product product, ProductDTO productDTO) {
+        product.setName(productDTO.getName());
+        product.setDescription(productDTO.getDescription());
+        product.setPrice(productDTO.getPrice());
+        product.setImageUrl(productDTO.getImageUrl());
+        product.setCategories(productDTO.getCategories()
                 .stream()
                 .map(categoryDTO -> new Category(categoryDTO.getId(), categoryDTO.getName()))
                 .collect(Collectors.toSet()));

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import jakarta.servlet.http.HttpServletRequest;
 import edu.ifmg.produtos.services.exceptions.DatabaseException;
+import edu.ifmg.produtos.services.exceptions.EmailException;
 import edu.ifmg.produtos.services.exceptions.ResourceNotFound;
 
 @ControllerAdvice
@@ -54,6 +55,20 @@ public class ResourceExceptionListener {
         for (FieldError f :  e.getBindingResult().getFieldErrors() ) {
             error.addFieldMessage(f.getField(), f.getDefaultMessage());
         }
+
+        return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(EmailException.class)
+    public ResponseEntity<StandardError> EmailException(EmailException exception, HttpServletRequest request) {
+        StandardError error = new StandardError();
+
+        error.setTimestamp(Instant.now());
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        error.setStatus(status.value());
+        error.setMessage(exception.getMessage());
+        error.setError("Email failed!");
+        error.setPath(request.getRequestURI());
 
         return ResponseEntity.status(status).body(error);
     }

@@ -2,7 +2,7 @@ package edu.ifmg.produtos.services;
 
 import edu.ifmg.produtos.dto.CategoryDTO;
 import edu.ifmg.produtos.entities.Category;
-import edu.ifmg.produtos.repository.CategoryRepository;
+import edu.ifmg.produtos.repositories.CategoryRepository;
 import edu.ifmg.produtos.services.exceptions.DatabaseException;
 import edu.ifmg.produtos.services.exceptions.ResourceNotFound;
 import jakarta.persistence.EntityNotFoundException;

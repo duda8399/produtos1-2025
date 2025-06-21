@@ -1,24 +1,21 @@
 package edu.ifmg.produtos.entities;
 
-import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.Objects;
+
+import jakarta.persistence.*;
 
 @Entity
-@Table(name = "tb_category")
+@Table(name = "categories")
 public class Category implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
     private String name;
-
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private Instant createdAt;
-
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private Instant updatedAt;
 
@@ -54,31 +51,13 @@ public class Category implements Serializable {
     }
 
     @PrePersist
-    public void prePersist() {
+    private void prePersist() {
         createdAt = Instant.now();
-    }
-
-    @PreUpdate
-    public void preUpdate() {
         updatedAt = Instant.now();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof Category category)) return false;
-        return Objects.equals(id, category.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
-    }
-
-    @Override
-    public String toString() {
-        return "Category{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
+    @PreUpdate
+    private void preUpdate() {
+        updatedAt = Instant.now();
     }
 }

@@ -1,7 +1,8 @@
 package edu.ifmg.produtos.dto;
 
-import edu.ifmg.produtos.entities.Category;
 import edu.ifmg.produtos.entities.Product;
+import edu.ifmg.produtos.projections.ProductProjection;
+import edu.ifmg.produtos.entities.Category;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Positive;
@@ -52,6 +53,13 @@ public class ProductListDTO extends RepresentationModel<ProductListDTO> {
     public ProductListDTO(Product product, Set<Category> categories) {
         this(product);
         categories.forEach(c-> this.categories.add(new CategoryDTO(c)));
+    }
+
+    public ProductListDTO(ProductProjection projection) {
+        this.id = projection.getId();
+        this.name = projection.getName();
+        this.price = projection.getPrice();
+        this.imageUrl = projection.getImageUrl();
     }
 
     public long getId() {

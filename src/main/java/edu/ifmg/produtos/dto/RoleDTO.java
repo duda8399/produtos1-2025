@@ -1,18 +1,18 @@
 package edu.ifmg.produtos.dto;
 
 import edu.ifmg.produtos.entities.Role;
-import jakarta.validation.constraints.NotBlank;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 public class RoleDTO {
+
     private long id;
     private String authority;
 
-    public RoleDTO() {
-    }
 
+    public RoleDTO() {
+
+    }
     public RoleDTO(long id, String authority) {
         this.id = id;
         this.authority = authority;

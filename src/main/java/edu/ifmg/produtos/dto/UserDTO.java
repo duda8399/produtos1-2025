@@ -1,4 +1,5 @@
 package edu.ifmg.produtos.dto;
+
 import edu.ifmg.produtos.entities.User;
 
 import jakarta.validation.constraints.Email;

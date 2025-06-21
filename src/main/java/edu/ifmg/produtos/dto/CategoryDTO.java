@@ -7,9 +7,7 @@ public class CategoryDTO {
     private Long id;
     private String name;
 
-    public CategoryDTO() {
-
-    }
+    public CategoryDTO() { }
 
     public CategoryDTO(Category category) {
         this.id = category.getId();

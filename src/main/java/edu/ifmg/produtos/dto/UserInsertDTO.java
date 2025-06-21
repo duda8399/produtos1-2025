@@ -1,6 +1,7 @@
 package edu.ifmg.produtos.dto;
 
 public class UserInsertDTO extends UserDTO {
+
     private String password;
 
     public UserInsertDTO() {

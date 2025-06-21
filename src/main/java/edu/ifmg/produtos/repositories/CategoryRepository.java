@@ -1,4 +1,4 @@
-package edu.ifmg.produtos.repository;
+package edu.ifmg.produtos.repositories;
 
 import edu.ifmg.produtos.entities.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
