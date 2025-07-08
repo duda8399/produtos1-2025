@@ -2,9 +2,7 @@ package edu.ifmg.produtos.resources;
 
 import edu.ifmg.produtos.dto.EmailDTO;
 import edu.ifmg.produtos.services.EmailService;
-
 import jakarta.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

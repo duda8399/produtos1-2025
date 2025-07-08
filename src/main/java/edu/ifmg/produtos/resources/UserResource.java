@@ -19,8 +19,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 
 @RestController
-@RequestMapping("/users")
-@Tag(name="User", description = "Controller/Resource for user")
+@RequestMapping(value = "/user")
+@Tag(name = "User", description = "Controller/Resource for users")
+
 public class UserResource {
 
     @Autowired
@@ -29,30 +30,28 @@ public class UserResource {
     @GetMapping(produces = "application/json")
     @Operation(
             description = "Get all users",
-            summary = "List all registered users",
+            summary = "Get all users",
             responses = {
-                    @ApiResponse(description = "ok", responseCode = "200"),
+                    @ApiResponse(description = "OK", responseCode = "200")
             }
     )
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public ResponseEntity<Page<UserDTO>> findAll(Pageable pageable) {
-        Page<UserDTO> users = userService.findAll(pageable);
-        return ResponseEntity.ok().body(users);
+        return ResponseEntity.ok().body(userService.findAll(pageable));
     }
 
     @GetMapping(value = "/{id}", produces = "application/json")
     @Operation(
             description = "Get a user",
-            summary = "List only one user",
+            summary = "Get a user",
             responses = {
-                    @ApiResponse(description = "ok", responseCode = "200"),
-                    @ApiResponse(description = "Not found", responseCode = "404"),
+                    @ApiResponse(description = "OK", responseCode = "200"),
+                    @ApiResponse(description = "Not Found", responseCode = "404")
             }
     )
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
-    public ResponseEntity<UserDTO> findById(@PathVariable Long id) {
-        UserDTO dto = userService.findById(id);
-        return ResponseEntity.ok().body(dto);
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    public ResponseEntity<UserDTO> findById(@PathVariable long id) {
+        return ResponseEntity.ok(userService.findById(id));
     }
 
     @PostMapping(produces = "application/json")
@@ -60,19 +59,20 @@ public class UserResource {
             description = "Create a new user",
             summary = "Create a new user",
             responses = {
-                    @ApiResponse(description = "created", responseCode = "201"),
-                    @ApiResponse(description = "Bad request", responseCode = "400"),
+                    @ApiResponse(description = "Created", responseCode = "201"),
+                    @ApiResponse(description = "Bad Request", responseCode = "400"),
                     @ApiResponse(description = "Unauthorized", responseCode = "401"),
-                    @ApiResponse(description = "Forbidden", responseCode = "403"),
+                    @ApiResponse(description = "Forbbiden", responseCode = "403")
             }
     )
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public ResponseEntity<UserDTO> insert(@Valid @RequestBody UserInsertDTO dto) {
         UserDTO user = userService.insert(dto);
-        URI uri = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(user.getId())
+
+        URI uri = ServletUriComponentsBuilder.
+                fromCurrentRequest().
+                path("/{id}").
+                buildAndExpand(user.getId())
                 .toUri();
         return ResponseEntity.created(uri).body(user);
     }
@@ -80,61 +80,58 @@ public class UserResource {
     @PutMapping(value = "/{id}", produces = "application/json")
     @Operation(
             description = "Update a user",
-            summary = "Change the values of a registered user",
+            summary = "Update a user",
             responses = {
-                    @ApiResponse(description = "ok", responseCode = "200"),
-                    @ApiResponse(description = "Bad request", responseCode = "400"),
+                    @ApiResponse(description = "OK", responseCode = "200"),
+                    @ApiResponse(description = "Bad Request", responseCode = "400"),
                     @ApiResponse(description = "Unauthorized", responseCode = "401"),
-                    @ApiResponse(description = "Forbidden", responseCode = "403"),
-                    @ApiResponse(description = "Not found", responseCode = "404"),
+                    @ApiResponse(description = "Forbbiden", responseCode = "403"),
+                    @ApiResponse(description = "Not Found", responseCode = "404")
             }
     )
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
-    public ResponseEntity<UserDTO> update(@PathVariable Long id, @Valid @RequestBody UserInsertDTO dto) {
-        UserDTO user = userService.update(id, dto);
-        return ResponseEntity.ok().body(user);
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    public ResponseEntity<UserDTO> update(@PathVariable long id, @Valid @RequestBody UserDTO user) {
+        return ResponseEntity.ok().body(userService.update(id, user));
     }
 
     @DeleteMapping(value = "/{id}")
     @Operation(
             description = "Delete a user",
-            summary = "Delete a registered user",
+            summary = "Delete a user",
             responses = {
-                    @ApiResponse(description = "ok", responseCode = "200"),
-                    @ApiResponse(description = "Bad request", responseCode = "400"),
+                    @ApiResponse(description = "OK", responseCode = "200"),
+                    @ApiResponse(description = "Bad Request", responseCode = "400"),
                     @ApiResponse(description = "Unauthorized", responseCode = "401"),
-                    @ApiResponse(description = "Forbidden", responseCode = "403"),
-                    @ApiResponse(description = "Not found", responseCode = "404"),
+                    @ApiResponse(description = "Forbbiden", responseCode = "403"),
+                    @ApiResponse(description = "Not Found", responseCode = "404"),
             }
     )
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    public ResponseEntity<Void> delete(@PathVariable long id) {
         userService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping(value="/signup", produces = "application/json")
-    @Operation(
-            description = "Sign up",
-            summary = "You can sign up",
-            responses = {
-                    @ApiResponse(description = "created", responseCode = "201"),
-                    @ApiResponse(description = "Bad request", responseCode = "400"),
-                    @ApiResponse(description = "Unauthorized", responseCode = "401"),
-                    @ApiResponse(description = "Forbidden", responseCode = "403"),
 
+    @PostMapping(value = "/signup", produces = "application/json")
+    @Operation(
+            description = "Sign up a new user",
+            summary = "Sign up a new user",
+            responses = {
+                    @ApiResponse(description = "Created", responseCode = "201"),
+                    @ApiResponse(description = "Bad Request", responseCode = "400"),
+                    @ApiResponse(description = "Unauthorized", responseCode = "401"),
+                    @ApiResponse(description = "Forbbiden", responseCode = "403")
             }
     )
-
-    public ResponseEntity<UserDTO> signup(@Valid @RequestBody UserInsertDTO dto) {
+    public ResponseEntity<UserDTO> signUp(@Valid @RequestBody UserInsertDTO dto) {
         UserDTO user = userService.signup(dto);
 
-        URI uri = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(user.getId())
+        URI uri = ServletUriComponentsBuilder.
+                fromCurrentRequest().
+                path("/{id}").
+                buildAndExpand(user.getId())
                 .toUri();
-
         return ResponseEntity.created(uri).body(user);
     }
 }

@@ -1,16 +1,17 @@
 package edu.ifmg.produtos.entities;
 
 import jakarta.persistence.*;
+
 import java.time.Instant;
 import java.util.Objects;
 
 @Entity
-@Table(name = "password_recovers")
+@Table(name = "tb_password_recover")
 public class PasswordRecover {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    public Long id;
 
     @Column(nullable = false)
     private String token;
@@ -21,14 +22,34 @@ public class PasswordRecover {
     @Column(nullable = false)
     private Instant expiration;
 
-    public PasswordRecover() {
-    }
+    public PasswordRecover(){}
 
     public PasswordRecover(Long id, String token, String email, Instant expiration) {
         this.id = id;
         this.token = token;
         this.email = email;
         this.expiration = expiration;
+    }
+
+    @Override
+    public String toString() {
+        return "PasswordRecover{" +
+                "id=" + id +
+                ", token='" + token + '\'' +
+                ", email='" + email + '\'' +
+                ", expiration=" + expiration +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof PasswordRecover that)) return false;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 
     public Long getId() {
@@ -61,28 +82,5 @@ public class PasswordRecover {
 
     public void setExpiration(Instant expiration) {
         this.expiration = expiration;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PasswordRecover)) return false;
-        PasswordRecover that = (PasswordRecover) o;
-        return Objects.equals(id, that.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
-
-    @Override
-    public String toString() {
-        return "PasswordRecover{" +
-                "id=" + id +
-                ", token='" + token + '\'' +
-                ", email='" + email + '\'' +
-                ", expiration=" + expiration +
-                '}';
     }
 }

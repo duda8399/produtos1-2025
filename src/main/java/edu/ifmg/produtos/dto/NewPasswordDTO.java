@@ -4,18 +4,20 @@ import jakarta.validation.constraints.NotBlank;
 
 public class NewPasswordDTO {
 
-    @NotBlank(message = "Campo obrigatório")
+    @NotBlank(message = "campo requerido")
     private String newPassword;
 
-    @NotBlank(message = "Campo obrigatório")
+    @NotBlank(message = "campo requerido")
     private String token;
 
-    public NewPasswordDTO() {
-    }
 
     public NewPasswordDTO(String newPassword, String token) {
         this.newPassword = newPassword;
         this.token = token;
+    }
+
+    public NewPasswordDTO() {
+
     }
 
     public String getNewPassword() {

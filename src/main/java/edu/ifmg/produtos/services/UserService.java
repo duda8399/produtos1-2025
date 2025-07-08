@@ -10,7 +10,6 @@ import edu.ifmg.produtos.repositories.RoleRepository;
 import edu.ifmg.produtos.repositories.UserRepository;
 import edu.ifmg.produtos.services.exceptions.DatabaseException;
 import edu.ifmg.produtos.services.exceptions.ResourceNotFound;
-
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -28,6 +27,7 @@ import java.util.Optional;
 
 @Service
 public class UserService implements UserDetailsService {
+
 
     @Autowired
     private UserRepository repository;
@@ -55,8 +55,9 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public UserDTO insert(UserInsertDTO dto) {
+
         User entity = new User();
-        copyDtoToEntity(dto, entity);
+        copyInsertDtoToEntity(dto, entity);
         // "Criptografa" a senha:
         entity.setPassword(passwordEncoder.encode(dto.getPassword()));
         User novo = repository.save(entity);
@@ -79,6 +80,7 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public void delete(Long id) {
+
         if (!repository.existsById(id)) {
             throw new ResourceNotFound("User not found with id " + id);
         }
@@ -88,7 +90,6 @@ public class UserService implements UserDetailsService {
             throw new DatabaseException("Integrity violation");
         }
     }
-
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         List<UserDetailsProjection> result = repository.searchUserAndRoleByEmail(username);
@@ -107,18 +108,7 @@ public class UserService implements UserDetailsService {
     }
 
     public UserDTO signup(UserInsertDTO dto) {
-        User entity = new User();
-
-        copyDtoToEntity(dto, entity);
-        entity.setPassword(passwordEncoder.encode(dto.getPassword()));
-
-        Role role = roleRepository.findByAuthority("ROLE_OPERATOR");
-        entity.getRoles().clear();
-        entity.getRoles().add(role);
-
-        User novo = repository.save(entity);
-
-        return new UserDTO(novo);
+        return null;
     }
 
     private void copyDtoToEntity(UserDTO dto, User entity) {
@@ -132,4 +122,16 @@ public class UserService implements UserDetailsService {
             entity.getRoles().add(r);
         }
     }
+    private void copyInsertDtoToEntity(UserInsertDTO dto, User entity) {
+        entity.setFirstName(dto.getFirstName());
+        entity.setLastName(dto.getLastName());
+        entity.setEmail(dto.getEmail());
+
+        entity.getRoles().clear();
+        for (Role role : dto.getRoles()) {
+            Role r = roleRepository.getReferenceById(role.getId());
+            entity.getRoles().add(r);
+        }
+    }
+
 }

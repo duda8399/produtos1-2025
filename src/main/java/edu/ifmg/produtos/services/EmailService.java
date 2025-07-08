@@ -21,6 +21,7 @@ public class EmailService {
     public void sendMail(EmailDTO dto){
 
         try {
+
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(emailFrom);
             message.setTo(dto.getTo());
@@ -28,10 +29,11 @@ public class EmailService {
             message.setText(dto.getBody());
             mailSender.send(message);
 
-        } catch (MailSendException e){
+        }catch (MailSendException e){
+
             throw new EmailException(e.getMessage());
+
         }
 
     }
-
 }
